@@ -4,6 +4,11 @@ fu! s:NyaoStenographerSetup()
 ruby << NYAOSTENOGRAPHER
 require 'fileutils'
 module NyaoStenographer
+
+  def self.add_for_current_session
+    Vim.command iabbrev_session(Ev.input("abbrev to trigger (#{visual_selection.first[0..20]}): "))
+  end
+
   def self.add
     ensure_dir
     append_abbrev_file(
@@ -12,11 +17,12 @@ module NyaoStenographer
     Ex.source filepath
   end
 
-  def self.iabbrev(mapping)        = "iabbrev #{mapping} #{visual_selection.join("<CR>")}"
-  def self.append_abbrev_file(str) = File.write filepath, "\n"+str, mode: 'a'
-  def self.ensure_dir              = FileUtils.mkdir_p dir
-  def self.filepath                = "#{dir}/nyaostenographer.vim"
-  def self.dir                     = "#{ENV["HOME"]}/.vim/after/ftplugin/#{Var["&ft"]}"
+  def self.iabbrev(mapping)         = "iabbrev <buffer> #{mapping} #{visual_selection.join("<CR>")}"
+  def self.iabbrev_session(mapping) = "iabbrev #{mapping} #{visual_selection.join("<CR>")}"
+  def self.append_abbrev_file(str)  = File.write filepath, "\n"+str, mode: 'a'
+  def self.ensure_dir               = FileUtils.mkdir_p dir
+  def self.filepath                 = "#{dir}/nyaostenographer.vim"
+  def self.dir                      = "#{ENV["HOME"]}/.vim/after/ftplugin/#{Var["&ft"]}"
 
   def self.visual_selection
     line_start, column_start = Ev.getpos("'<")[1..2]
@@ -38,4 +44,5 @@ endfu
 
 call s:NyaoStenographerSetup()
 
-vno ,a :ruby NyaoStenographer.add<CR>
+vno ,a :ruby NyaoStenographer.add_for_current_session<CR>
+vno ,A :ruby NyaoStenographer.add<CR>
